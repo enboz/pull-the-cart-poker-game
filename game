@@ -1,0 +1,105 @@
+__author__ = 'enbozhang'
+# -*- coding: utf-8 -*-
+import random, time
+
+suits = ["♥", "♦", "♠", "♣"]
+ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+
+
+class Card:
+    def __init__(self, suit, rank):
+        self.suit = suit
+        self.rank = rank
+
+
+my_cards = []
+his_cards = []
+cards_on_table = []
+cards_on_stack = []
+
+
+def start():
+    for s in suits:
+        for r in ranks:
+            cards_on_stack.append(Card(s, r))
+
+    for i in range(1, 27):
+        deal()
+    print("Game begins!\n")
+
+
+def deal(who="both"):
+    if who in ["me", "both"]:
+        my_cards.append(cards_on_stack.pop(random.randrange(len(cards_on_stack))))
+    if who in ["him", "both"]:
+        his_cards.append(cards_on_stack.pop(random.randrange(len(cards_on_stack))))
+
+
+def play():
+    time.sleep(1)
+    display()
+    input("Press enter to play.")
+    myplay = my_cards.pop(0)
+    cards_on_table.append(myplay)
+    print("you played",myplay.suit+myplay.rank)
+    check("me")
+    return
+
+
+def he_plays():
+    time.sleep(1)
+    display("him")
+    cd = his_cards.pop(random.randrange(len(his_cards)))
+    cards_on_table.append(cd)
+    print("He played:", cd.suit + cd.rank)
+    check("him")
+    return
+
+
+def check(who):
+    if len(cards_on_table) > 1:
+        for i in range(0, len(cards_on_table) - 1):
+            try:
+                if cards_on_table[i].rank == cards_on_table[len(cards_on_table)-1].rank:
+                    cards_taken = len(cards_on_table) - i
+                    if who == "me":
+                        for j in range(cards_taken):
+                            my_cards.append(cards_on_table.pop())
+                        print("\n\nGood Job! You've taken", cards_taken, "cards.")
+                        time.sleep(3)
+                        play()
+                    elif who == "him":
+                        for j in range(cards_taken):
+                            his_cards.append(cards_on_table.pop())
+                        print("\n\nAlas! He's taken", cards_taken, "cards.")
+                        time.sleep(3)
+                        he_plays()
+            except IndexError as e:
+                pass
+
+
+def display(who="me"):
+    print("\n\n")
+    if cards_on_table:
+        print("Cards on table are:", ", ".join([c.suit + c.rank for c in cards_on_table]))
+    else:
+        print("There are no cards on table.")
+    if who == "me": print("your cards are:", ", ".join([c.suit + c.rank for c in my_cards]))
+
+
+def game_over():
+    if my_cards == []: return -1
+    if his_cards == []: return 1
+    return 0
+
+
+start()
+while not game_over():
+    play()
+    he_plays()
+if game_over() == 1:
+    print("you win!!")
+    quit()
+else:
+    print("you lose!")
+    quit()
